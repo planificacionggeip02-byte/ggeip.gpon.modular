@@ -233,7 +233,8 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" onclick="mostrarModulo('nuevoRegistro')">
+          <!-- 🔧 cambiado: ahora usa cargarModulo() -->
+          <a class="nav-link" onclick="cargarModulo('nuevoRegistro')">
             <span class="nav-icon">📦</span> Nuevo Registro
           </a>
         </li>
@@ -295,7 +296,7 @@
         <div class="content-body">
           <div class="card">
             <div class="card-header">Formulario de Nuevo Registro</div>
-            <div class="card-body">
+            <div class="card-body" id="nuevoRegistroBody">
               <p>Contenido del formulario en construcción.</p>
             </div>
           </div>
@@ -343,26 +344,72 @@
   <!-- ==========================================================
        ⚙️ SCRIPT DE NAVEGACIÓN ENTRE MÓDULOS
        ========================================================== -->
-  <script>
-    /**
-     * Activa el módulo seleccionado en el panel lateral
-     * y muestra su contenido en el área principal.
-     * @param {string} modulo - ID del módulo a mostrar.
-     */
-    function mostrarModulo(modulo) {
-      // Desactivar todos los módulos
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+<script>
+  /**
+   * Activa el módulo seleccionado en el panel lateral
+   * y muestra su contenido en el área principal.
+   * @param {string} modulo - ID del módulo a mostrar.
+   */
+  function mostrarModulo(modulo) {
+    // Desactivar todos los módulos
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
 
-      // Activar el módulo seleccionado
-      const tab = document.getElementById(modulo);
-      const link = Array.from(document.querySelectorAll('.nav-link')).find(a => a.textContent.includes(tab?.id.replace(/([A-Z])/g, ' $1')));
-      if (tab) tab.classList.add('active');
+    // Activar el módulo seleccionado
+    const tab = document.getElementById(modulo);
+    if (tab) tab.classList.add('active');
 
-      // Buscar y marcar el enlace activo
-      event?.target?.classList?.add('active');
+    // Buscar y marcar el enlace activo
+    event?.target?.classList?.add('active');
+  }
+
+  /* ==========================================================
+     Carga un módulo HTML y lo inserta en su contenedor interno
+     ========================================================== */
+  async function cargarModulo(nombre) {
+    // Mostrar el módulo (igual que el resto del sistema)
+    mostrarModulo(nombre);
+
+    // Si es el módulo Nuevo Registro, cargamos su HTML en la card-body correspondiente
+    if (nombre === 'nuevoRegistro') {
+      const destino = document.getElementById('nuevoRegistroBody');
+      if (!destino) return;
+      destino.innerHTML = '<div style="padding:12px;">Cargando módulo…</div>';
+
+      try {
+  // Pedimos el HTML crudo del módulo al servidor (SIN wrappers)
+  google.script.run
+    .withSuccessHandler(function (html) {
+      const destino = document.getElementById('nuevoRegistroBody');
+      if (!destino) return;
+
+      destino.innerHTML = html; // ya es fragmento listo (no hace falta extraer <body>)
+
+      // Ejecutar SOLO scripts del módulo, evitando wrappers internos de GAS
+      [...destino.querySelectorAll("script")].forEach(function (s) {
+        const code = s.textContent || "";
+        if (!/maeInit_/.test(code)) {
+          try { eval(code); } catch (err) { console.error('Error ejecutando script del módulo:', err); }
+        }
+      });
+
+      // Llamar init() del módulo si existe
+      if (window.NuevoRegistro && typeof window.NuevoRegistro.init === 'function') {
+        window.NuevoRegistro.init();
+      }
+    })
+    .withFailureHandler(function (e) {
+      const destino = document.getElementById('nuevoRegistroBody');
+      if (destino) destino.innerHTML = `<div style="color:#b00020;padding:12px;">Error: ${e.message}</div>`;
+    })
+    .getModuloHTML(nombre); // <= AQUÍ la llamada al servidor
+} catch (e) {
+  const destino = document.getElementById('nuevoRegistroBody');
+  if (destino) destino.innerHTML = `<div style="color:#b00020;padding:12px;">Error: ${e.message}</div>`;
+}
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
-
