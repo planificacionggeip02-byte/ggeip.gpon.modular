@@ -1,0 +1,567 @@
+<section id="mod-nuevo-registro">
+  <style>
+    :root {
+      --primary: #2E86AB;
+      --primary-dark: #1C5F7B;
+      --bg: #E8F4F8;
+      --card: #FFFFFF;
+      --text: #2E4053;
+      --muted: #6B7C93;
+      --border: #E5F2F7;
+      --ok: #2E7D32;
+      --ok-bg: #E8F5E9;
+      --err: #B00020;
+      --err-bg: #FDECEA;
+    }
+
+    #mod-nuevo-registro {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+    }
+
+    #mod-nuevo-registro .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .06);
+      border: 1px solid var(--border);
+      margin: 10px 0;
+    }
+
+    #mod-nuevo-registro .card-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      background: #F7FCFF;
+    }
+
+    #mod-nuevo-registro .card-header h2 {
+      margin: 0 0 4px 0;
+      font-size: 1.25rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    #mod-nuevo-registro .card-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    #mod-nuevo-registro .card-body {
+      padding: 20px;
+    }
+
+    #mod-nuevo-registro .group {
+      margin-bottom: 18px;
+    }
+
+    #mod-nuevo-registro .group-title {
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin: 0 0 10px 0;
+    }
+
+    #mod-nuevo-registro .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      font-size: .96rem;
+      box-sizing: border-box;
+      background: #fff;
+      transition: border-color .15s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .is-valid {
+      border-color: #66bb6a !important;
+      box-shadow: 0 0 0 2px rgba(102, 187, 106, .15);
+    }
+
+    .is-invalid {
+      border-color: #e53935 !important;
+      box-shadow: 0 0 0 2px rgba(229, 57, 53, .12);
+    }
+
+    .vicon {
+      font-size: 1.05rem;
+    }
+
+    .vicon.ok {
+      color: #2e7d32;
+    }
+
+    .vicon.err {
+      color: #b00020;
+    }
+
+    .actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: #CCDDEE;
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: #BBD1E3;
+    }
+
+    /* === Teléfono: un solo rectángulo (select + input) === */
+    .tel-wrapper {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      background: #fff;
+    }
+
+    .tel-wrapper:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(46, 134, 171, .12);
+    }
+
+    .tel-wrapper select,
+    .tel-wrapper input {
+      border: none;
+      padding: 10px 12px;
+      font-size: .96rem;
+      background: transparent;
+    }
+
+    .tel-wrapper select {
+      border-right: 1px solid #e6eef2;
+      background: #f9fcff;
+    }
+
+    .tel-wrapper input:focus {
+      outline: none;
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    @media (max-width:620px) {
+      .span-2 {
+        grid-column: auto;
+      }
+    }
+  </style>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Formulario de Nuevo Registro</h2>
+      <p>Complete los campos y guarde para registrar.</p>
+    </div>
+
+    <div class="card-body">
+      <form id="frmNuevoRegistro">
+        <!-- Campos ocultos -->
+        <input type="hidden" id="id_registro" name="id_registro">
+        <input type="hidden" id="fecha_registro" name="fecha_registro">
+        <input type="hidden" id="tipo_data" name="tipo_data" value="Nuevo">
+
+        <!-- =================== INFORMACIÓN PERSONAL =================== -->
+        <div class="group">
+          <h3 class="group-title">Información Personal</h3>
+          <div class="grid">
+            <div>
+              <label for="numero">Número <span class="vicon" id="vi_numero"></span></label>
+              <select id="numero" name="numero">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="nombre_contacto">Nombre Contacto <span class="vicon" id="vi_nombre_contacto"></span></label>
+              <input id="nombre_contacto" name="nombre_contacto" type="text" placeholder="Nombre Apellido">
+            </div>
+
+            <div>
+              <label for="cedula">Cédula <span class="vicon" id="vi_cedula"></span></label>
+              <input id="cedula" name="cedula" type="text" inputmode="numeric" placeholder="V-12345678">
+            </div>
+
+            <div>
+              <label for="correo">Correo <span class="vicon" id="vi_correo"></span></label>
+              <input id="correo" name="correo" type="email" placeholder="correo@dominio.com">
+            </div>
+
+            <div class="span-2">
+              <label for="telefono_completo">Teléfono <span class="vicon" id="vi_telefono"></span></label>
+              <div class="tel-wrapper">
+                <select id="cod_area" name="cod_area">
+                  <option value="">Cod</option>
+                </select>
+                <input id="telefono_completo" name="telefono_completo"
+                       type="text" inputmode="numeric" maxlength="7" placeholder="0000000">
+            </div>
+          </div>
+        </div>
+
+        <!-- =================== INFORMACIÓN CLIENTE =================== -->
+        <div class="group">
+          <h3 class="group-title">Información del Cliente</h3>
+          <div class="grid">
+            <div class="span-2">
+              <label for="cliente">Cliente / Razón Social <span class="vicon" id="vi_cliente"></span></label>
+              <input id="cliente" name="cliente" type="text" placeholder="Nombre de la empresa o persona">
+            </div>
+
+            <div>
+              <label for="rif">RIF <span class="vicon" id="vi_rif"></span></label>
+              <input id="rif" name="rif" type="text" placeholder="J-12345678-9">
+            </div>
+
+            <div class="span-2">
+              <label for="direccion_rif">Dirección RIF <span class="vicon" id="vi_direccion_rif"></span></label>
+              <input id="direccion_rif" name="direccion_rif" type="text" placeholder="Dirección fiscal asociada al RIF">
+            </div>
+
+            <div>
+              <label for="calle">Calle <span class="vicon" id="vi_calle"></span></label>
+              <input id="calle" name="calle" type="text" placeholder="Calle / Avenida">
+            </div>
+
+            <div>
+              <label for="edificio">Edificio <span class="vicon" id="vi_edificio"></span></label>
+              <input id="edificio" name="edificio" type="text" placeholder="Edificación / Centro Comercial">
+            </div>
+
+            <div>
+              <label for="piso">Piso <span class="vicon" id="vi_piso"></span></label>
+              <input id="piso" name="piso" type="text" placeholder="Nivel / Piso">
+            </div>
+
+            <div>
+              <label for="local">Local <span class="vicon" id="vi_local"></span></label>
+              <input id="local" name="local" type="text" placeholder="Local / Oficina">
+            </div>
+
+            <div>
+              <label for="region">Región <span class="vicon" id="vi_region"></span></label>
+              <select id="region" name="region">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="gerente_region">Gerente Regional <span class="vicon" id="vi_gerente_region"></span></label>
+              <select id="gerente_region" name="gerente_region">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="estado">Estado <span class="vicon" id="vi_estado"></span></label>
+              <select id="estado" name="estado">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="municipio">Municipio <span class="vicon" id="vi_municipio"></span></label>
+              <select id="municipio" name="municipio">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="ciudad">Ciudad <span class="vicon" id="vi_ciudad"></span></label>
+              <input id="ciudad" name="ciudad" type="text" placeholder="Ciudad">
+            </div>
+          </div>
+        </div>
+
+        <!-- =================== INFORMACIÓN SERVICIO =================== -->
+        <div class="group">
+          <h3 class="group-title">Información del Servicio</h3>
+          <div class="grid">
+            <div>
+              <label for="contrato">Contrato <span class="vicon" id="vi_contrato"></span></label>
+              <input id="contrato" name="contrato" type="text" placeholder="Código de contrato">
+            </div>
+
+            <div>
+              <label for="modelo_equipo">Modelo de Equipo <span class="vicon" id="vi_modelo_equipo"></span></label>
+              <select id="modelo_equipo" name="modelo_equipo">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="serial_asignado">Serial Asignado <span class="vicon" id="vi_serial_asignado"></span></label>
+              <input id="serial_asignado" name="serial_asignado" type="text" placeholder="Serial">
+            </div>
+
+            <div>
+              <label for="fecha_abordaje">Fecha Abordaje <span class="vicon" id="vi_fecha_abordaje"></span></label>
+              <input id="fecha_abordaje" name="fecha_abordaje" type="date">
+            </div>
+
+            <div>
+              <label for="estatus_local">Estatus Local <span class="vicon" id="vi_estatus_local"></span></label>
+              <select id="estatus_local" name="estatus_local">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="oferta_entregada">Oferta Entregada <span class="vicon" id="vi_oferta_entregada"></span></label>
+              <select id="oferta_entregada" name="oferta_entregada">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="oferta_aceptada">Oferta Aceptada <span class="vicon" id="vi_oferta_aceptada"></span></label>
+              <select id="oferta_aceptada" name="oferta_aceptada">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="situacion_abordaje">Situación de Abordaje <span class="vicon" id="vi_situacion_abordaje"></span></label>
+              <select id="situacion_abordaje" name="situacion_abordaje">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="situacion_actual">Situación Actual <span class="vicon" id="vi_situacion_actual"></span></label>
+              <select id="situacion_actual" name="situacion_actual">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="numero_servicio_700">N° Servicio 700 <span class="vicon" id="vi_numero_servicio_700"></span></label>
+              <input id="numero_servicio_700" name="numero_servicio_700" type="text" placeholder="700xxxx">
+            </div>
+
+            <div>
+              <label for="equipo">Equipo <span class="vicon" id="vi_equipo"></span></label>
+              <input id="equipo" name="equipo" type="text" placeholder="Equipo">
+            </div>
+
+            <div>
+              <label for="odn">ODN <span class="vicon" id="vi_odn"></span></label>
+              <select id="odn" name="odn">
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================== Observaciones =================== -->
+        <div class="group">
+          <h3 class="group-title">Observaciones</h3>
+          <div class="grid">
+            <div class="span-2">
+              <label for="observaciones">Comentarios <span class="vicon" id="vi_observaciones"></span></label>
+              <textarea id="observaciones" name="observaciones" rows="3" placeholder="Detalles adicionales"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metadatos (backend) -->
+        <input type="hidden" id="usuario_registro" name="usuario_registro">
+        <input type="hidden" id="fecha_modificacion" name="fecha_modificacion">
+        <input type="hidden" id="usuario_modificacion" name="usuario_modificacion">
+        <input type="hidden" id="fecha_actualizacion" name="fecha_actualizacion">
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="btnGuardar">Guardar</button>
+          <button type="reset" class="btn btn-secondary" id="btnLimpiar">Limpiar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <div class="title" id="toastTitle"></div>
+    <div class="msg" id="toastMsg"></div>
+  </div>
+</section>
+
+<script>
+  window.NuevoRegistro = (function () {
+    const el = {};
+    const qs = id => document.getElementById(id);
+    const setToast = (ok, title, msg) => {
+      const t = el.toast;
+      t.className = 'toast ' + (ok ? 'ok' : 'err');
+      el.toastTitle.textContent = title;
+      el.toastMsg.textContent = msg;
+      t.style.display = 'block';
+      clearTimeout(el.toastTimer);
+      el.toastTimer = setTimeout(() => (t.style.display = 'none'), 3000);
+    };
+    const mark = (id, ok) => {
+      const input = qs(id), icon = qs('vi_' + id);
+      if (!input) return;
+      input.classList.remove('is-valid', 'is-invalid');
+      if (ok === true) { input.classList.add('is-valid'); icon && (icon.textContent = '✔', icon.className = 'vicon ok'); }
+      else if (ok === false) { input.classList.add('is-invalid'); icon && (icon.textContent = '✖', icon.className = 'vicon err'); }
+      else { icon && (icon.textContent = ''); }
+    };
+    const toTitleCase = s => (s || '').toLowerCase().replace(/\b\w/g, m => m.toUpperCase());
+    const normalize = s => (s || '').trim().replace(/\s+/g, ' ');
+
+    function limpiarSelect(sel) { if (!sel) return; sel.innerHTML = '<option value=\"\">Seleccionar…</option>'; }
+    function poblarSelect(sel, arr) { limpiarSelect(sel); (arr || []).forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); }); }
+
+    function cargarRegiones() {
+      google.script.run.withSuccessHandler(arr => poblarSelect(el.region, arr)).getRegiones();
+    }
+    function onRegionChange() {
+      const region = el.region.value || '';
+      limpiarSelect(el.gerente_region); limpiarSelect(el.estado); limpiarSelect(el.municipio);
+      if (!region) return;
+      google.script.run.withSuccessHandler(arr => poblarSelect(el.gerente_region, arr)).getGerentesPorRegion(region);
+      google.script.run.withSuccessHandler(arr => poblarSelect(el.estado, arr)).getEstadosPorRegion(region);
+    }
+    function onEstadoChange() {
+      const estado = el.estado.value || '';
+      limpiarSelect(el.municipio);
+      if (!estado) return;
+      google.script.run.withSuccessHandler(arr => poblarSelect(el.municipio, arr)).getMunicipiosPorEstado(estado);
+    }
+
+    function cargarListasFijas() {
+      google.script.run.withSuccessHandler(map => {
+        poblarSelect(el.numero, map.numero || []);
+        poblarSelect(el.modelo_equipo, map.modelo_equipo || []);
+        poblarSelect(el.estatus_local, map.estatus_local || []);
+        poblarSelect(el.oferta_entregada, map.oferta_entregada || []);
+        poblarSelect(el.oferta_aceptada, map.oferta_aceptada || []);
+        poblarSelect(el.situacion_abordaje, map.situacion_abordaje || []);
+        poblarSelect(el.situacion_actual, map.situacion_actual || []);
+        poblarSelect(el.odn, map.odn || []);
+        poblarSelect(el.cod_area, map.cod_area || []);
+      }).getListasFijas();
+    }
+
+    function attachValidation() {
+      const camposTexto = ['nombre_contacto', 'cliente', 'direccion_rif', 'calle', 'edificio', 'piso', 'local', 'ciudad', 'contrato', 'serial_asignado', 'equipo'];
+      camposTexto.forEach(id => {
+        const n = qs(id);
+        if (n) n.addEventListener('blur', () => { n.value = toTitleCase(normalize(n.value)); mark(id, !!n.value); });
+      });
+
+      el.correo.addEventListener('blur', () => {
+        const ok = !el.correo.value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.correo.value);
+        mark('correo', ok);
+      });
+
+      el.telefono_completo.addEventListener('input', () => {
+        el.telefono_completo.value = el.telefono_completo.value.replace(/[^\d]/g, '').slice(0, 7);
+        mark('telefono_completo', el.telefono_completo.value.length === 7);
+      });
+    }
+
+    function onGuardar() {
+      const datos = Object.fromEntries(new FormData(el.form).entries());
+      datos.telefono = (el.cod_area.value || '') + (el.telefono_completo.value || '');
+      datos.cliente = toTitleCase(normalize(datos.cliente));
+      datos.nombre_contacto = toTitleCase(normalize(datos.nombre_contacto));
+      datos.fecha_registro = new Date().toLocaleString();
+
+      setToast(true, 'Guardando', 'Enviando datos al servidor…');
+      google.script.run.withSuccessHandler(resp => {
+        setToast(true, 'Éxito', resp || 'Tu registro ha sido cargado exitosamente.');
+        resetFormHard();
+      }).withFailureHandler(err => {
+        setToast(false, 'Error', 'Ocurrió un error al guardar: ' + err.message);
+      }).submitApplication(datos);
+    }
+
+    function resetFormHard() {
+      el.form.reset();
+      document.querySelectorAll('#mod-nuevo-registro .is-valid, #mod-nuevo-registro .is-invalid')
+        .forEach(n => n.classList.remove('is-valid', 'is-invalid'));
+      document.querySelectorAll('#mod-nuevo-registro .vicon').forEach(i => i.textContent = '');
+      [el.gerente_region, el.estado, el.municipio].forEach(limpiarSelect);
+      cargarListasFijas();
+      cargarRegiones();
+    }
+
+    function cache() {
+      el.form = qs('frmNuevoRegistro');
+      el.toast = qs('toast'); el.toastTitle = qs('toastTitle'); el.toastMsg = qs('toastMsg');
+      el.numero = qs('numero'); el.nombre_contacto = qs('nombre_contacto'); el.cedula = qs('cedula');
+      el.correo = qs('correo'); el.cod_area = qs('cod_area'); el.telefono_completo = qs('telefono_completo');
+      el.cliente = qs('cliente'); el.rif = qs('rif'); el.direccion_rif = qs('direccion_rif'); el.calle = qs('calle');
+      el.edificio = qs('edificio'); el.piso = qs('piso'); el.local = qs('local'); el.region = qs('region');
+      el.gerente_region = qs('gerente_region'); el.estado = qs('estado'); el.municipio = qs('municipio');
+      el.ciudad = qs('ciudad'); el.contrato = qs('contrato'); el.modelo_equipo = qs('modelo_equipo');
+      el.serial_asignado = qs('serial_asignado'); el.fecha_abordaje = qs('fecha_abordaje');
+      el.estatus_local = qs('estatus_local'); el.oferta_entregada = qs('oferta_entregada');
+      el.oferta_aceptada = qs('oferta_aceptada'); el.situacion_abordaje = qs('situacion_abordaje');
+      el.situacion_actual = qs('situacion_actual'); el.numero_servicio_700 = qs('numero_servicio_700');
+      el.equipo = qs('equipo'); el.odn = qs('odn'); el.observaciones = qs('observaciones');
+      el.btnGuardar = qs('btnGuardar'); el.btnLimpiar = qs('btnLimpiar');
+    }
+
+    function bind() {
+      el.btnGuardar.addEventListener('click', onGuardar);
+      el.btnLimpiar.addEventListener('click', resetFormHard);
+      el.region.addEventListener('change', onRegionChange);
+      el.estado.addEventListener('change', onEstadoChange);
+    }
+
+    function init() {
+      cache(); bind(); attachValidation();
+      cargarListasFijas(); cargarRegiones();
+    }
+
+    return { init };
+  })();
+</script>
