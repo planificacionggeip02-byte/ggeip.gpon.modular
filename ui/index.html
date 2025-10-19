@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consolidado GPON - GGEIP</title>
+
+  <!-- ==========================================================
+       🎨 ESTILOS BASADOS EN TU DASHBOARD ORIGINAL (QASO SYSTEM)
+       ========================================================== -->
+  <style>
+    /* --------------------------------------------------------
+       🎨 PALETA DE COLORES Y TIPOGRAFÍA
+       -------------------------------------------------------- */
+    :root {
+      --color-primary: #2E86AB;   /* Azul principal de la barra lateral */
+      --color-dark: #1C5F7B;      /* Azul oscuro para cabecera */
+      --color-light: #E8F4F8;     /* Fondo de toda la app */
+      --color-hover: rgba(255,255,255,0.15);
+      --color-active: #5DADE2;
+      --color-card: #FAFBFC;
+      --text-color: #2E86AB;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--color-light);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --------------------------------------------------------
+       📦 ESTRUCTURA PRINCIPAL DEL DASHBOARD
+       -------------------------------------------------------- */
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* --------------------------------------------------------
+       🧭 PANEL LATERAL IZQUIERDO
+       -------------------------------------------------------- */
+    .sidebar {
+      width: 250px;
+      background: var(--color-primary);
+      color: white;
+      flex-shrink: 0;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    /* Cabecera de la barra lateral */
+    .sidebar-header {
+      padding: 20px;
+      background: var(--color-dark);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    /* Lista del menú lateral */
+    .nav-menu {
+      list-style: none;
+      padding: 20px 0;
+    }
+
+    /* Cada ítem del menú lateral */
+    .nav-item {
+      margin: 5px 15px;
+    }
+
+    /* Enlace de navegación (botón visual) */
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* Ícono al lado del texto */
+    .nav-icon {
+      margin-right: 10px;
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Efecto hover y módulo activo */
+    .nav-link:hover {
+      background: var(--color-hover);
+      transform: translateX(5px);
+      color: white;
+    }
+
+    .nav-link.active {
+      background: var(--color-active);
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Pie del panel lateral */
+    .sidebar-footer {
+      text-align: center;
+      font-size: 0.8rem;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    /* --------------------------------------------------------
+       🧩 CONTENIDO PRINCIPAL (DERECHA)
+       -------------------------------------------------------- */
+    .main-content {
+      flex: 1;
+      background: var(--color-card);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabecera del contenido (título superior del módulo) */
+    .content-header {
+      background: white;
+      padding: 20px 30px;
+      border-bottom: 1px solid #e9ecef;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .content-header h2 {
+      color: var(--text-color);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    /* Contenedor del cuerpo del módulo */
+    .content-body {
+      padding: 30px;
+    }
+
+    /* Animación para transición de módulos */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tarjetas (contenedores de información) */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+      border: 1px solid #E5F2F7;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px;
+      background: #F0F8FC;
+      border-bottom: 1px solid #E5F2F7;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .card-body {
+      padding: 25px;
+    }
+
+    /* Ajustes responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        transition: left 0.3s ease;
+      }
+      .sidebar.open {
+        left: 0;
+      }
+      .main-content {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<!-- ==========================================================
+     🖥️ ESTRUCTURA DEL DASHBOARD PRINCIPAL
+     ========================================================== -->
+<body onload="mostrarModulo('dashboard')">
+
+  <div class="app-container">
+    <!-- PANEL LATERAL -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h1>Consolidado GPON - GGEIP</h1>
+      </div>
+
+      <!-- MENÚ DE MÓDULOS -->
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a class="nav-link active" onclick="mostrarModulo('dashboard')">
+            <span class="nav-icon">📊</span> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="mostrarModulo('buscar')">
+            <span class="nav-icon">🔍</span> Buscar
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="mostrarModulo('nuevoRegistro')">
+            <span class="nav-icon">📦</span> Nuevo Registro
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="mostrarModulo('modificarRegistro')">
+            <span class="nav-icon">📋</span> Modificar Registro
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="mostrarModulo('reportes')">
+            <span class="nav-icon">📈</span> Reportes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="mostrarModulo('configuracion')">
+            <span class="nav-icon">⚙️</span> Configuración
+          </a>
+        </li>
+      </ul>
+
+      <!-- PIE DEL MENÚ -->
+      <div class="sidebar-footer">
+        © 2025 Consolidado GPON - GGEIP
+      </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+      <div id="dashboard" class="tab-content active">
+        <div class="content-header">
+          <h2>Dashboard General</h2>
+        </div>
+        <div class="content-body">
+          <div class="card">
+            <div class="card-header">Bienvenido</div>
+            <div class="card-body">
+              <p>Este es el panel principal del sistema <b>Consolidado GPON - GGEIP</b>.</p>
+              <p>Usa el menú lateral para navegar entre los módulos disponibles.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenedor dinámico para los demás módulos -->
+      <div id="buscar" class="tab-content">
+        <div class="content-header"><h2>Módulo: Buscar</h2></div>
+        <div class="content-body">
+          <div class="card">
+            <div class="card-header">Buscar información</div>
+            <div class="card-body">
+              <p>Contenido en desarrollo...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="nuevoRegistro" class="tab-content">
+        <div class="content-header"><h2>Módulo: Nuevo Registro</h2></div>
+        <div class="content-body">
+          <div class="card">
+            <div class="card-header">Formulario de Nuevo Registro</div>
+            <div class="card-body">
+              <p>Contenido del formulario en construcción.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="modificarRegistro" class="tab-content">
+        <div class="content-header"><h2>Módulo: Modificar Registro</h2></div>
+        <div class="content-body">
+          <div class="card">
+            <div class="card-header">Editar Registros Existentes</div>
+            <div class="card-body">
+              <p>Contenido del módulo de modificación en construcción.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="reportes" class="tab-content">
+        <div class="content-header"><h2>Módulo: Reportes</h2></div>
+        <div class="content-body">
+          <div class="card">
+            <div class="card-header">Generar Reportes</div>
+            <div class="card-body">
+              <p>Contenido del módulo de reportes en construcción.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="configuracion" class="tab-content">
+        <div class="content-header"><h2>Módulo: Configuración</h2></div>
+        <div class="content-body">
+          <div class="card">
+            <div class="card-header">Ajustes del Sistema</div>
+            <div class="card-body">
+              <p>Configuraciones del sistema en desarrollo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       ⚙️ SCRIPT DE NAVEGACIÓN ENTRE MÓDULOS
+       ========================================================== -->
+  <script>
+    /**
+     * Activa el módulo seleccionado en el panel lateral
+     * y muestra su contenido en el área principal.
+     * @param {string} modulo - ID del módulo a mostrar.
+     */
+    function mostrarModulo(modulo) {
+      // Desactivar todos los módulos
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+      // Activar el módulo seleccionado
+      const tab = document.getElementById(modulo);
+      const link = Array.from(document.querySelectorAll('.nav-link')).find(a => a.textContent.includes(tab?.id.replace(/([A-Z])/g, ' $1')));
+      if (tab) tab.classList.add('active');
+
+      // Buscar y marcar el enlace activo
+      event?.target?.classList?.add('active');
+    }
+  </script>
+</body>
+</html>
+
