@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo: Modificar Registro</title>
+  <link rel="stylesheet" href="style.css">
+
+<!-- 🔧 Estilo del campo de búsqueda RIF -->
+  <style>
+    #buscarRif {
+      background-color: #f3f4f6;
+      transition: all 0.2s ease;
+    }
+    #buscarRif:focus {
+      background-color: #ffffff;
+      border-color: #1273ff;
+      box-shadow: 0 0 0 2px rgba(18,115,255,0.2);
+      outline: none;
+    }
+  </style>
+
+</head>
+
+<body>
+    
+<section id="mod-nuevo-registro">
+  <div class="card">
+    <div class="card-header">
+      <h2>Formulario de Modificar Registro</h2>
+      <p>Ingrese el RIF, busque el registro y actualice los datos necesarios.</p>
+    </div>
+
+    <div class="card-body">
+      <!-- 🔍 Campo de búsqueda -->
+      <div class="group">
+        <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:10px;">
+          <label for="buscarRif" style="font-weight:600;">RIF:</label>
+          <input id="buscarRif" type="text" placeholder="Ingrese RIF" style="padding:8px 10px; border-radius:6px; border:1px solid #ccc; width:220px;">
+          <button type="button" id="btnBuscar" class="btn btn-primary">Buscar</button>
+        </div>
+      </div>
+
+      <!-- 🔽 FORMULARIO PRINCIPAL -->
+      <form id="frmNuevoRegistro">
+        <!-- Campos ocultos -->
+        <input type="hidden" id="id_registro" name="id_registro">
+        <input type="hidden" id="fecha_registro" name="fecha_registro">
+        <input type="hidden" id="tipo_data" name="tipo_data" value="Modificación">
+        <input type="hidden" id="usuario_modificacion" name="usuario_modificacion">
+        <input type="hidden" id="fecha_modificacion" name="fecha_modificacion">
+
+        <!-- =================== INFORMACIÓN PERSONAL =================== -->
+        <div class="group">
+          <h3 class="group-title">Información Personal</h3>
+          <div class="grid">
+            <div>
+              <label for="numero">Número <span class="vicon" id="vi_numero"></span></label>
+              <select id="numero" name="numero" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="nombre_contacto">Nombre Contacto <span class="vicon" id="vi_nombre_contacto"></span></label>
+              <input id="nombre_contacto" name="nombre_contacto" type="text" placeholder="Nombre Apellido" disabled>
+            </div>
+
+            <div>
+              <label for="cedula">Cédula <span class="vicon" id="vi_cedula"></span></label>
+              <input id="cedula" name="cedula" type="text" inputmode="numeric" placeholder="V-12345678" disabled>
+            </div>
+
+            <div>
+              <label for="correo">Correo <span class="vicon" id="vi_correo"></span></label>
+              <input id="correo" name="correo" type="email" placeholder="correo@dominio.com" disabled>
+            </div>
+
+            <div class="span-2">
+              <label for="telefono_completo">Teléfono <span class="vicon" id="vi_telefono"></span></label>
+              <div class="tel-wrapper">
+                <select id="cod_area" name="cod_area" disabled>
+                  <option value="">Cod</option>
+                </select>
+                <input id="telefono_completo" name="telefono_completo" type="text" inputmode="numeric" maxlength="7" placeholder="0000000" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================== INFORMACIÓN CLIENTE =================== -->
+        <div class="group">
+          <h3 class="group-title">Información del Cliente</h3>
+          <div class="grid">
+            <div class="span-2">
+              <label for="cliente">Cliente / Razón Social <span class="vicon" id="vi_cliente"></span></label>
+              <input id="cliente" name="cliente" type="text" placeholder="Nombre de la empresa o persona" disabled>
+            </div>
+
+            <div>
+              <label for="rif">RIF <span class="vicon" id="vi_rif"></span></label>
+              <input id="rif" name="rif" type="text" placeholder="J-12345678-9" disabled>
+            </div>
+
+            <div class="span-2">
+              <label for="direccion_rif">Dirección RIF <span class="vicon" id="vi_direccion_rif"></span></label>
+              <input id="direccion_rif" name="direccion_rif" type="text" placeholder="Dirección fiscal asociada al RIF" disabled>
+            </div>
+
+            <div>
+              <label for="calle">Calle <span class="vicon" id="vi_calle"></span></label>
+              <input id="calle" name="calle" type="text" placeholder="Calle / Avenida" disabled>
+            </div>
+
+            <div>
+              <label for="edificio">Edificio <span class="vicon" id="vi_edificio"></span></label>
+              <input id="edificio" name="edificio" type="text" placeholder="Edificación / Centro Comercial" disabled>
+            </div>
+
+            <div>
+              <label for="piso">Piso <span class="vicon" id="vi_piso"></span></label>
+              <input id="piso" name="piso" type="text" placeholder="Nivel / Piso" disabled>
+            </div>
+
+            <div>
+              <label for="local">Local <span class="vicon" id="vi_local"></span></label>
+              <input id="local" name="local" type="text" placeholder="Local / Oficina" disabled>
+            </div>
+
+            <div>
+              <label for="region">Región <span class="vicon" id="vi_region"></span></label>
+              <select id="region" name="region" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="gerente_region">Gerente Regional <span class="vicon" id="vi_gerente_region"></span></label>
+              <select id="gerente_region" name="gerente_region" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="estado">Estado <span class="vicon" id="vi_estado"></span></label>
+              <select id="estado" name="estado" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="municipio">Municipio <span class="vicon" id="vi_municipio"></span></label>
+              <select id="municipio" name="municipio" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="ciudad">Ciudad <span class="vicon" id="vi_ciudad"></span></label>
+              <input id="ciudad" name="ciudad" type="text" placeholder="Ciudad" disabled>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================== INFORMACIÓN SERVICIO =================== -->
+        <div class="group">
+          <h3 class="group-title">Información del Servicio</h3>
+          <div class="grid">
+            <div>
+              <label for="contrato">Contrato <span class="vicon" id="vi_contrato"></span></label>
+              <input id="contrato" name="contrato" type="text" placeholder="Código de contrato" disabled>
+            </div>
+
+            <div>
+              <label for="modelo_equipo">Modelo de Equipo <span class="vicon" id="vi_modelo_equipo"></span></label>
+              <select id="modelo_equipo" name="modelo_equipo" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="serial_asignado">Serial Asignado <span class="vicon" id="vi_serial_asignado"></span></label>
+              <input id="serial_asignado" name="serial_asignado" type="text" placeholder="Serial" disabled>
+            </div>
+
+            <div>
+              <label for="fecha_abordaje">Fecha Abordaje <span class="vicon" id="vi_fecha_abordaje"></span></label>
+              <input id="fecha_abordaje" name="fecha_abordaje" type="date" disabled>
+            </div>
+
+            <div>
+              <label for="estatus_local">Estatus Local <span class="vicon" id="vi_estatus_local"></span></label>
+              <select id="estatus_local" name="estatus_local" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="oferta_entregada">Oferta Entregada <span class="vicon" id="vi_oferta_entregada"></span></label>
+              <select id="oferta_entregada" name="oferta_entregada" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="oferta_aceptada">Oferta Aceptada <span class="vicon" id="vi_oferta_aceptada"></span></label>
+              <select id="oferta_aceptada" name="oferta_aceptada" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="situacion_abordaje">Situación de Abordaje <span class="vicon" id="vi_situacion_abordaje"></span></label>
+              <select id="situacion_abordaje" name="situacion_abordaje" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="situacion_actual">Situación Actual <span class="vicon" id="vi_situacion_actual"></span></label>
+              <select id="situacion_actual" name="situacion_actual" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="numero_servicio_700">N° Servicio 700 <span class="vicon" id="vi_numero_servicio_700"></span></label>
+              <input id="numero_servicio_700" name="numero_servicio_700" type="text" placeholder="700xxxx" disabled>
+            </div>
+
+            <div>
+              <label for="equipo">Equipo <span class="vicon" id="vi_equipo"></span></label>
+              <input id="equipo" name="equipo" type="text" placeholder="Equipo" disabled>
+            </div>
+
+            <div>
+              <label for="odn">ODN <span class="vicon" id="vi_odn"></span></label>
+              <select id="odn" name="odn" disabled>
+                <option value="">Seleccionar…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================== OBSERVACIONES =================== -->
+        <div class="group">
+          <h3 class="group-title">Observaciones</h3>
+          <div class="grid">
+            <div class="span-2">
+              <label for="observaciones">Comentarios <span class="vicon" id="vi_observaciones"></span></label>
+              <textarea id="observaciones" name="observaciones" rows="3" placeholder="Detalles adicionales" disabled></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="btnGuardar" disabled>Guardar Cambios</button>
+          <button type="reset" class="btn btn-secondary" id="btnLimpiar">Limpiar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <div class="title" id="toastTitle"></div>
+    <div class="msg" id="toastMsg"></div>
+  </div>
+
+  <!-- Overlay de resultados -->
+  <div id="overlayResultados" class="overlay">
+    <div class="overlay-content">
+      <div class="overlay-header">
+        <h3>Resultados de búsqueda</h3>
+        <span id="cerrarOverlay" class="close-overlay">×</span>
+      </div>
+      <table id="tablaResultados">
+        <thead>
+          <tr>
+            <th>RIF</th>
+            <th>Cliente / Razón Social</th>
+            <th>Región</th>
+            <th>Estado</th>
+            <th>Contrato</th>
+            <th>N° Servicio 700</th>
+            <th>Situación Actual</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+<!-- 🔍 Script funcional para Buscar y Overlay -->
+<script>
+(function(){
+  const btnBuscar = document.getElementById('btnBuscar');
+  const overlay = document.getElementById('overlayResultados');
+  const cerrar = document.getElementById('cerrarOverlay');
+  const tablaBody = document.querySelector('#tablaResultados tbody');
+
+  // Acción al presionar Buscar
+  if (btnBuscar) {
+    btnBuscar.addEventListener('click', () => {
+      const rif = document.getElementById('buscarRif').value.trim();
+
+      if (!rif) {
+        alert('⚠️ Por favor, ingrese un RIF antes de buscar.');
+        return;
+      }
+
+      // ✅ En este punto, luego conectaremos la búsqueda real a Sheets
+      // Por ahora mostramos un resultado simulado para pruebas
+      const ejemplo = `
+        <tr>
+          <td>${rif}</td>
+          <td>Cliente Ejemplo, C.A.</td>
+          <td>Centro</td>
+          <td>Carabobo</td>
+          <td>CT-00123</td>
+          <td>7001234</td>
+          <td>En gestión</td>
+          <td><button class="btn btn-primary btnModificar">Modificar</button></td>
+        </tr>
+      `;
+      tablaBody.innerHTML = ejemplo;
+      overlay.style.display = 'flex'; // Mostrar overlay
+    });
+  }
+
+  // Cerrar overlay con la X
+  if (cerrar) {
+    cerrar.addEventListener('click', () => {
+      overlay.style.display = 'none';
+    });
+  }
+
+  // Acción al presionar "Modificar" en el overlay
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('btnModificar')) {
+      overlay.style.display = 'none';
+      // ⚙️ Aquí más adelante cargaremos los datos reales del registro seleccionado
+      alert('✅ Aquí se cargarán los datos del registro seleccionado.');
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
+
