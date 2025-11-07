@@ -277,6 +277,9 @@ function getRegistrosPorRif(rifQuery) {
     if (key) idx[key] = i;
   });
 
+// 🔎 Log de todos los encabezados normalizados  -  LUEGO ELIMINAR FILA 280 Y 281
+console.log("📑 Índices de encabezados:", JSON.stringify(idx));
+
   // Aux: obtener por uno de varios nombres/alias
   const pick = (row, ...names) => {
     for (let n of names) {
@@ -292,6 +295,21 @@ function getRegistrosPorRif(rifQuery) {
   data.forEach(row => {
     const rif = (pick(row, 'rif') || '').toString().toLowerCase();
     if (!rif.includes(rifQuery)) return;
+
+// 🔎 Log puntual de Fecha Abordaje   -   LUEGO ELIMINAR LINEA 296 A 298
+        const fechaRaw = pick(row, 'fecha_abordaje', 'Fecha Abordaje', 'fecha abordaje');
+    console.log("🗓 Fecha Abordaje cruda:", fechaRaw, typeof fechaRaw);
+
+      let fechaISO = '';
+      if (fechaRaw instanceof Date) {
+        const y = fechaRaw.getFullYear();
+        const m = String(fechaRaw.getMonth() + 1).padStart(2, '0');
+        const d = String(fechaRaw.getDate()).padStart(2, '0');
+        fechaISO = `${y}-${m}-${d}`;
+      } else if (typeof fechaRaw === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(fechaRaw)) {
+        const [d, m, y] = fechaRaw.split('/');
+        fechaISO = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
 
     const reg = {
       id_registro: pick(row, 'id_registro', 'id'),
@@ -321,7 +339,7 @@ function getRegistrosPorRif(rifQuery) {
       contrato: pick(row, 'contrato'),
       modelo_equipo: pick(row, 'modelo_equipo', 'modelo equipo'),
       serial_asignado: pick(row, 'serial asignado', 'serial'),
-      fecha_abordaje: pick(row, 'fecha_abordaje'),
+      fecha_abordaje: fechaISO,
       estatus_local: pick(row, 'estatus local', 'estatus'),
       oferta_entregada: pick(row, 'oferta entregada'),
       oferta_aceptada: pick(row, 'oferta aceptada'),
