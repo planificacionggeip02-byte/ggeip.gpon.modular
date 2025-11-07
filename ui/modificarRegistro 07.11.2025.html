@@ -769,6 +769,9 @@ textarea:enabled:focus,
     overlay.style.display = 'none';
     const registro = JSON.parse(btn.getAttribute('data-registro'));
 
+    // 🔎 Log puntual de Fecha Abordaje   -     LUEGO BORRAR LINEA 772 Y 773
+    console.log("🗓 registro.fecha_abordaje:", registro.fecha_abordaje, typeof registro.fecha_abordaje);   
+
     // ✅ Desbloquear inmediatamente
     canEdit = true;
     toggleForm(true);
