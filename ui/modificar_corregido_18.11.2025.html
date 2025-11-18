@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Módulo: Modificar Registro</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- 🎨 Ajustes visuales para coherencia con Nuevo Registro -->
+  <style>
+    /* Campo de búsqueda RIF */
+    #buscarRif {
+      background-color: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 6px 10px;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+    #buscarRif:focus {
+      background-color: #ffffff;
+      border-color: #1273ff;
+      box-shadow: 0 0 0 2px rgba(18,115,255,0.2);
+      outline: none;
+    }
+
+    /* Overlay */
+    #overlayResultados.overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      display: none;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #overlayResultados .overlay-content {
+      width: min(1100px, 96vw);
+      max-height: 82vh;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #overlayResultados .overlay-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #1273ff;
+      color: #fff;
+      font-weight: 600;
+    }
+    #overlayResultados .close-overlay {
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #overlayResultados table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #overlayResultados thead th {
+      background: #e9f2ff;
+      color: #111;
+      text-align: center;
+      padding: 10px 8px;
+      font-weight: 600;
+      border-bottom: 1px solid #c7ddff;
+    }
+    #overlayResultados tbody td {
+      border: 1px solid #e5e7eb;
+      text-align: center;
+      padding: 8px 6px;
+      font-size: 0.9rem;
+      color: #111827;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #overlayResultados tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+    .btn-mini {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+/* Campos bloqueados */
+input:disabled,
+select:disabled,
+textarea:disabled,
+#cod_area:disabled,
+#telefono_completo:disabled {
+  background-color: #f0f0f0;   /* gris claro */
+  color: #9ca3af;              /* texto gris */
+  border-color: #d1d5db;       /* borde gris */
+  cursor: not-allowed;
+}
+
+/* Campos activos */
+input:enabled,
+select:enabled,
+textarea:enabled,
+#cod_area:enabled,
+#telefono_completo:enabled {
+  background-color: #ffffff;   /* blanco */
+  color: #111827;              /* texto oscuro */
+  border-color: #cfd8dc;       /* borde normal */
+}
+
+/* Campos activos en foco */
+input:enabled:focus,
+select:enabled:focus,
+textarea:enabled:focus,
+#cod_area:enabled:focus,
+#telefono_completo:enabled:focus {
+  border-color: #1273ff;
+  outline: none;
+  box-shadow: 0 0 0 2px #1273ff33;
+}
+  </style>
+</head>
+
+<body>
+  <section id="mod-modificar-registro">
+    <div class="card">
+      <div class="card-header">
+        <h2>Formulario de Modificar Registro</h2>
+        <p>Ingrese el RIF, busque el registro y actualice los datos necesarios.</p>
+      </div>
+
+      <div class="card-body">
+        <!-- 🔍 Buscador superior -->
+        <div class="form-header" style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+          <label for="buscarRif" style="font-weight:600;">RIF:</label>
+          <input type="text" id="buscarRif" placeholder="Ingrese RIF" style="flex:0 0 220px;" />
+          <button id="btnBuscar" class="btn btn-primary">Buscar</button>
+        </div>
+
+        <!-- 🧾 Formulario principal (idéntico a Nuevo Registro) -->
+        <form id="frmNuevoRegistro" class="formulario">
+        
+         <!-- Campos ocultos -->
+  <input type="hidden" id="id_registro" name="id_registro">
+  <input type="hidden" id="row_index" name="row_index">
+  <input type="hidden" id="fecha_registro" name="fecha_registro">
+  <input type="hidden" id="tipo_data" name="tipo_data" value="Modificación">
+  <input type="hidden" id="usuario_registro" name="usuario_registro">
+  <input type="hidden" id="fecha_modificacion" name="fecha_modificacion">
+  <input type="hidden" id="usuario_modificacion" name="usuario_modificacion">
+  <input type="hidden" id="fecha_actualizacion" name="fecha_actualizacion">
+
+  <!-- =================== INFORMACIÓN PERSONAL =================== -->
+  <div class="group">
+    <h3 class="group-title">Información Personal</h3>
+    <div class="grid">
+      <div>
+        <label for="numero">Número <span class="vicon" id="vi_numero"></span></label>
+        <select id="numero" name="numero">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="nombre_contacto">Nombre Contacto <span class="vicon" id="vi_nombre_contacto"></span></label>
+        <input id="nombre_contacto" name="nombre_contacto" type="text" placeholder="Nombre Apellido">
+      </div>
+
+      <div>
+        <label for="cedula">Cédula <span class="vicon" id="vi_cedula"></span></label>
+        <input id="cedula" name="cedula" type="text" inputmode="numeric" placeholder="V-12345678">
+      </div>
+
+      <div>
+        <label for="correo">Correo <span class="vicon" id="vi_correo"></span></label>
+        <input id="correo" name="correo" type="email" placeholder="correo@dominio.com">
+      </div>
+
+      <div class="span-2">
+        <label for="telefono_completo">Teléfono <span class="vicon" id="vi_telefono"></span></label>
+        <div class="tel-wrapper">
+          <select id="cod_area" name="cod_area">
+            <option value="">Cod</option>
+          </select>
+          <input id="telefono_completo" name="telefono_completo" type="text" inputmode="numeric" maxlength="7" placeholder="0000000">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== INFORMACIÓN DEL CLIENTE =================== -->
+  <div class="group">
+    <h3 class="group-title">Información del Cliente</h3>
+    <div class="grid">
+      <div class="span-2">
+        <label for="cliente">Cliente / Razón Social <span class="vicon" id="vi_cliente"></span></label>
+        <input id="cliente" name="cliente" type="text" placeholder="Nombre de la empresa o persona">
+      </div>
+
+      <div>
+        <label for="rif">RIF <span class="vicon" id="vi_rif"></span></label>
+        <input id="rif" name="rif" type="text" placeholder="J-12345678-9">
+      </div>
+
+      <div class="span-2">
+        <label for="direccion_rif">Dirección RIF <span class="vicon" id="vi_direccion_rif"></span></label>
+        <input id="direccion_rif" name="direccion_rif" type="text" placeholder="Dirección fiscal asociada al RIF">
+      </div>
+
+      <div>
+        <label for="calle">Calle <span class="vicon" id="vi_calle"></span></label>
+        <input id="calle" name="calle" type="text" placeholder="Calle / Avenida">
+      </div>
+
+      <div>
+        <label for="edificio">Edificio <span class="vicon" id="vi_edificio"></span></label>
+        <input id="edificio" name="edificio" type="text" placeholder="Edificación / Centro Comercial">
+      </div>
+
+      <div>
+        <label for="piso">Piso <span class="vicon" id="vi_piso"></span></label>
+        <input id="piso" name="piso" type="text" placeholder="Nivel / Piso">
+      </div>
+
+      <div>
+        <label for="local">Local <span class="vicon" id="vi_local"></span></label>
+        <input id="local" name="local" type="text" placeholder="Local / Oficina">
+      </div>
+
+      <div>
+        <label for="region">Región <span class="vicon" id="vi_region"></span></label>
+        <select id="region" name="region">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="gerente_region">Gerente Regional <span class="vicon" id="vi_gerente_region"></span></label>
+        <select id="gerente_region" name="gerente_region">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="estado">Estado <span class="vicon" id="vi_estado"></span></label>
+        <select id="estado" name="estado">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="municipio">Municipio <span class="vicon" id="vi_municipio"></span></label>
+        <select id="municipio" name="municipio">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="ciudad">Ciudad <span class="vicon" id="vi_ciudad"></span></label>
+        <input id="ciudad" name="ciudad" type="text" placeholder="Ciudad">
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== INFORMACIÓN DEL SERVICIO =================== -->
+  <div class="group">
+    <h3 class="group-title">Información del Servicio</h3>
+    <div class="grid">
+      <div>
+        <label for="contrato">Contrato <span class="vicon" id="vi_contrato"></span></label>
+        <input id="contrato" name="contrato" type="text" placeholder="Código de contrato">
+      </div>
+
+      <div>
+        <label for="modelo_equipo">Modelo de Equipo <span class="vicon" id="vi_modelo_equipo"></span></label>
+        <select id="modelo_equipo" name="modelo_equipo">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="serial_asignado">Serial Asignado <span class="vicon" id="vi_serial_asignado"></span></label>
+        <input id="serial_asignado" name="serial_asignado" type="text" placeholder="Serial">
+      </div>
+
+      <div>
+        <label for="fecha_abordaje">Fecha Abordaje <span class="vicon" id="vi_fecha_abordaje"></span></label>
+        <input id="fecha_abordaje" name="fecha_abordaje" type="date">
+      </div>
+
+      <div>
+        <label for="estatus_local">Estatus Local <span class="vicon" id="vi_estatus_local"></span></label>
+        <select id="estatus_local" name="estatus_local">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="oferta_entregada">Oferta Entregada <span class="vicon" id="vi_oferta_entregada"></span></label>
+        <select id="oferta_entregada" name="oferta_entregada">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="oferta_aceptada">Oferta Aceptada <span class="vicon" id="vi_oferta_aceptada"></span></label>
+        <select id="oferta_aceptada" name="oferta_aceptada">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="situacion_abordaje">Situación de Abordaje <span class="vicon" id="vi_situacion_abordaje"></span></label>
+        <select id="situacion_abordaje" name="situacion_abordaje">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="situacion_actual">Situación Actual <span class="vicon" id="vi_situacion_actual"></span></label>
+        <select id="situacion_actual" name="situacion_actual">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="numero_servicio_700">N° Servicio 700 <span class="vicon" id="vi_numero_servicio_700"></span></label>
+        <input id="numero_servicio_700" name="numero_servicio_700" type="text" placeholder="700xxxx">
+      </div>
+
+      <div>
+        <label for="equipo">Equipo <span class="vicon" id="vi_equipo"></span></label>
+        <input id="equipo" name="equipo" type="text" placeholder="Equipo">
+      </div>
+
+      <div>
+        <label for="odn">ODN <span class="vicon" id="vi_odn"></span></label>
+        <select id="odn" name="odn">
+          <option value="">Seleccionar…</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== OBSERVACIONES =================== -->
+  <div class="group">
+    <h3 class="group-title">Observaciones</h3>
+    <div class="grid">
+      <div class="span-2">
+        <label for="observaciones">Comentarios <span class="vicon" id="vi_observaciones"></span></label>
+        <textarea id="observaciones" name="observaciones" rows="3" placeholder="Detalles adicionales"></textarea>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Toast -->
+<div id="toast" class="toast" style="display:none;">
+  <div class="title" id="toastTitle"></div>
+  <div class="msg" id="toastMsg"></div>
+</div>
+
+        <!-- 🔘 Botones de acción -->
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="btnGuardar" disabled>Guardar Cambios</button>
+          <button type="reset" class="btn btn-secondary" id="btnLimpiar">Limpiar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🪟 Overlay de resultados -->
+<div id="overlayResultados" class="overlay">
+  <div class="overlay-content">
+    <div class="overlay-header">
+      <h3>Resultados de búsqueda</h3>
+      <span id="cerrarOverlay" class="close-overlay">×</span>
+    </div>
+    <table id="tablaResultados">
+      <thead>
+        <tr>
+          <th>RIF</th>
+          <th>Cliente / Razón Social</th>
+          <th>Región</th>
+          <th>Estado</th>
+          <th>Contrato</th>
+          <th>N° Servicio 700</th>
+          <th>Situación Actual</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🎨 Estilos idénticos al módulo Nuevo Registro -->
+<style>
+  :root {
+    --primary: #2E86AB;
+    --primary-dark: #1C5F7B;
+    --bg: #E8F4F8;
+    --card: #FFFFFF;
+    --text: #2E4053;
+    --muted: #6B7C93;
+    --border: #E5F2F7;
+    --ok: #2E7D32;
+    --ok-bg: #E8F5E9;
+    --err: #B00020;
+    --err-bg: #FDECEA;
+  }
+
+  #mod-modificar-registro {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+  }
+
+  #mod-modificar-registro .card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .06);
+    border: 1px solid var(--border);
+    margin: 10px 0;
+  }
+
+  #mod-modificar-registro .card-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    background: #F7FCFF;
+  }
+
+  #mod-modificar-registro .card-header h2 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  #mod-modificar-registro .card-header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .92rem;
+  }
+
+  #mod-modificar-registro .card-body {
+    padding: 20px;
+  }
+
+  #mod-modificar-registro .group {
+    margin-bottom: 18px;
+  }
+
+  #mod-modificar-registro .group-title {
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin: 0 0 10px 0;
+  }
+
+  #mod-modificar-registro .grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cfd8dc;
+    border-radius: 8px;
+    font-size: .96rem;
+    box-sizing: border-box;
+    background: #fff;
+    transition: border-color .15s ease;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .is-valid {
+    border-color: #66bb6a !important;
+    box-shadow: 0 0 0 2px rgba(102, 187, 106, .15);
+  }
+
+  .is-invalid {
+    border-color: #e53935 !important;
+    box-shadow: 0 0 0 2px rgba(229, 57, 53, .12);
+  }
+
+  .vicon {
+    font-size: 1.05rem;
+  }
+
+  .vicon.ok {
+    color: #2e7d32;
+  }
+
+  .vicon.err {
+    color: #b00020;
+  }
+
+  .actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+  }
+
+  .btn-secondary {
+    background: #CCDDEE;
+    color: var(--text);
+  }
+
+  .btn-secondary:hover {
+    background: #BBD1E3;
+  }
+
+  /* === Teléfono (select + input) === */
+  .tel-wrapper {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    border: 1px solid #cfd8dc;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color .15s ease, box-shadow .15s ease;
+    background: #fff;
+  }
+
+  .tel-wrapper:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(46, 134, 171, .12);
+  }
+
+  .tel-wrapper select,
+  .tel-wrapper input {
+    border: none;
+    padding: 10px 12px;
+    font-size: .96rem;
+    background: transparent;
+  }
+
+  .tel-wrapper select {
+    border-right: 1px solid #e6eef2;
+    background: #f9fcff;
+  }
+
+  .tel-wrapper input:focus {
+    outline: none;
+  }
+
+  .span-2 {
+    grid-column: span 2;
+  }
+
+  @media (max-width:620px) {
+    .span-2 {
+      grid-column: auto;
+    }
+  }
+</style>
+
+<script>
+
+(function () {
+  // Tomamos referencias después del DOM ready (fallback si ya pasó)
+  let overlay, cerrar, tablaBody, form, btnBuscar, inpRif;
+
+  // 🚫 Bandera de edición: hasta seleccionar registro, no se habilita nada
+  let canEdit = false;
+
+  // Inicialización robusta de elementos del DOM
+  function initElements() {
+    overlay   = document.getElementById('overlayResultados');
+    cerrar    = document.getElementById('cerrarOverlay');
+    tablaBody = document.querySelector('#tablaResultados tbody');
+    form      = document.getElementById('frmNuevoRegistro');
+    // Intentamos varios selectores por si alguna modificación cambió el id
+    btnBuscar = document.getElementById('btnBuscar') || document.querySelector('.btn-primary#btnBuscar') || document.querySelector('[name="btnBuscar"]');
+    inpRif   = document.getElementById('buscarRif') || document.querySelector('input[placeholder*="RIF"]') || document.querySelector('input[name="buscarRif"]');
+
+    console.log('✅ initElements: btnBuscar=', btnBuscar, ' inpRif=', inpRif, ' form=', !!form);
+  }
+
+  // Reemplaza la función toggleForm existente por esta:
+const toggleForm = (enabled) => {
+  const shouldEnable = enabled && canEdit; // solo si canEdit === true
+  // Si el form existe, actúa sobre sus campos
+  if (form) {
+    [...form.querySelectorAll('input, select, textarea, button')].forEach(el => {
+      if (el.id === 'btnLimpiar') return;   // dejamos btnLimpiar fuera del control del form (se controla explícitamente abajo)
+      if (el.type === 'hidden') return;
+      if (el.id === 'buscarRif') return;
+      if (el.id === 'btnBuscar') return;
+      el.disabled = !shouldEnable;
+    });
+  }
+
+  // Botones que están fuera del form: control explícito
+  const btnGuardarEl = document.getElementById('btnGuardar');
+  const btnLimpiarEl = document.getElementById('btnLimpiar');
+
+  // btnGuardar debe habilitarse solo cuando canEdit true y enabled true
+  if (btnGuardarEl) btnGuardarEl.disabled = !shouldEnable;
+
+  // btnLimpiar habitualmente siempre debe estar disponible para limpiar; mantenemos habilitado por defecto.
+  if (btnLimpiarEl) {
+    // Si quieres que Limpiar se desactive cuando todo está bloqueado, cambia la línea siguiente por:
+    // btnLimpiarEl.disabled = !shouldEnable;
+    btnLimpiarEl.disabled = false;
+  }
+};
+
+  // Inicializa estado del formulario
+  function initModificar() {
+    try {
+      initElements();
+      canEdit = false;
+      toggleForm(false);
+      if (inpRif) inpRif.disabled = false;
+      if (btnBuscar) btnBuscar.disabled = false;
+      const btnLimpiar = document.getElementById("btnLimpiar");
+      if (btnLimpiar) btnLimpiar.disabled = false;
+      console.log("✅ Formulario bloqueado al iniciar (solo RIF, Buscar y Limpiar habilitados)");
+      attachBuscarListener(); // Aseguramos listener
+      // listener overlay close
+      if (cerrar) cerrar.addEventListener('click', () => { if (overlay) overlay.style.display = 'none'; });
+    } catch (e) {
+      console.error("❌ Error en initModificar:", e);
+    }
+  }
+
+  // Utilidades para selects
+  function limpiarSelect(select) {
+    if (!select) return;
+    while (select.options.length > 1) select.remove(1);
+  }
+  function poblarSelect(select, arr) {
+    if (!select) return;
+    limpiarSelect(select);
+    (arr || []).forEach(v => {
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = v;
+      select.appendChild(opt);
+    });
+  }
+  function asignarSelectPorTexto(select, valor) {
+    if (!select || valor == null) return;
+    const target = String(valor).trim().toLowerCase();
+    // intentamos por value
+    for (const opt of select.options) {
+      if (String(opt.value).trim().toLowerCase() === target) {
+        select.value = opt.value;
+        return;
+      }
+    }
+    // intentamos por texto visible
+    for (const opt of select.options) {
+      if (String(opt.textContent).trim().toLowerCase() === target) {
+        select.value = opt.value;
+        return;
+      }
+    }
+  }
+
+  // ==== Cargar listas fijas desde backend con validación única ====
+  function cargarListasFijas(registro) {
+    google.script.run
+      .withSuccessHandler(map => {
+        const reporte = {};
+
+        function poblarYValidar(id, valores, valorAsignado) {
+          const el = form.querySelector(`#${id}`);
+          if (!el) {
+            reporte[id] = { estado: "❌ No existe en DOM" };
+            return;
+          }
+          limpiarSelect(el);
+          (valores || []).forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            el.appendChild(opt);
+          });
+          asignarSelectPorTexto(el, valorAsignado);
+
+          reporte[id] = {
+            opciones: valores?.length || 0,
+            valorAsignado: valorAsignado ?? "",
+            valorFinal: el.value ?? "",
+            estado: el.value ? "✅ OK" : "⚠️ Sin asignar"
+          };
+        }
+
+        poblarYValidar("numero", map.numero, registro.numero);
+        poblarYValidar("cod_area", map.cod_area, registro.cod_area);
+        poblarYValidar("modelo_equipo", map.modelo_equipo, registro.modelo_equipo);
+        poblarYValidar("estatus_local", map.estatus_local, registro.estatus_local);
+        poblarYValidar("oferta_entregada", map.oferta_entregada, registro.oferta_entregada);
+        poblarYValidar("oferta_aceptada", map.oferta_aceptada, registro.oferta_aceptada);
+        poblarYValidar("situacion_abordaje", map.situacion_abordaje, registro.situacion_abordaje);
+        poblarYValidar("situacion_actual", map.situacion_actual, registro.situacion_actual);
+        poblarYValidar("odn", map.odn, registro.odn);
+
+        console.table(reporte);
+        console.log("📋 Validación completa de listas fijas:", reporte);
+      })
+      .withFailureHandler(err => {
+        console.error("❌ Error cargando listas fijas:", err);
+        alert("Error cargando listas fijas: " + err.message);
+      })
+      .getListasFijas();
+  }
+
+  // ===== Buscar =====
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+  }
+  function escapeHtmlAttr(s) {
+    return escapeHtml(s).replace(/'/g, '&#39;');
+  }
+
+  function attachBuscarListener() {
+    if (!btnBuscar) {
+      console.warn('⚠️ attachBuscarListener: btnBuscar no encontrado. Reintentando initElements...');
+      initElements();
+      if (!btnBuscar) {
+        console.error('❌ btnBuscar sigue sin existir. Verifica el HTML o el id del botón.');
+        return;
+      }
+    }
+
+    // prevenir doble attach
+    try { btnBuscar.removeEventListener('click', onBuscarClick); } catch(e) {}
+    btnBuscar.addEventListener('click', onBuscarClick);
+    console.log('✅ Listener de búsqueda asignado al botón Buscar');
+  }
+
+  function onBuscarClick() {
+    const rif = inpRif ? inpRif.value.trim() : '';
+    console.log('🔍 onBuscarClick - rif=', rif);
+    if (!rif) { alert('Ingresa un RIF.'); return; }
+    if (btnBuscar) btnBuscar.disabled = true;
+
+    google.script.run
+      .withSuccessHandler(data => {
+        if (btnBuscar) btnBuscar.disabled = false;
+        console.log('✅ getRegistrosPorRif result:', data);
+        if (!data || data.length === 0) {
+          alert('⚠️ No se encontraron registros para el RIF ingresado.');
+          return;
+        }
+        // Renderizamos filas usando data-id con id_registro para evitar JSON en atributos
+        const html = data.map(r => `
+          <tr>
+            <td>${escapeHtml(r.rif || '')}</td>
+            <td>${escapeHtml(r.cliente || '')}</td>
+            <td>${escapeHtml(r.region || '')}</td>
+            <td>${escapeHtml(r.estado || '')}</td>
+            <td>${escapeHtml(r.contrato || '')}</td>
+            <td>${escapeHtml(r.numero_servicio_700 || '')}</td>
+            <td>${escapeHtml(r.situacion_actual || '')}</td>
+            <td><button class="btn btn-primary btn-mini btnModificar" data-id="${escapeHtmlAttr(r.id_registro || r.id || '')}">Modificar</button></td>
+          </tr>`).join('');
+        if (tablaBody) tablaBody.innerHTML = html;
+        if (overlay) overlay.style.display = 'flex';
+      })
+      .withFailureHandler(err => {
+        if (btnBuscar) btnBuscar.disabled = false;
+        console.error('❌ Error al ejecutar getRegistrosPorRif:', err);
+        alert('Error al buscar: ' + (err.message || err));
+      })
+      .getRegistrosPorRif(rif);
+  }
+
+  // 🧾 Delegación: seleccionar registro por data-id y solicitar el registro completo por ID
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btnModificar');
+    if (!btn) return;
+
+    const idRegistro = btn.getAttribute('data-id');
+    if (!idRegistro) {
+      alert('ID de registro no disponible.');
+      return;
+    }
+
+    if (overlay) overlay.style.display = 'none';
+    console.log('🔎 Solicitar registro por ID:', idRegistro);
+
+    google.script.run
+      .withSuccessHandler(res => {
+        console.log('DEBUG: respuesta getRegistroPorIdYFila (raw):', res);
+        if (!res) { 
+          alert('No se pudo recuperar el registro.'); 
+          return; 
+        }
+        const registro = res.data ? res.data : res;
+
+        // 🔎 Log puntual de Fecha Abordaje
+        console.log("🗓 registro.fecha_abordaje:", registro.fecha_abordaje, typeof registro.fecha_abordaje);
+
+        // ✅ Desbloquear inmediatamente
+        canEdit = true;
+        toggleForm(true);
+
+        // Campos simples
+        Object.entries(registro).forEach(([k, v]) => {
+          if ((k === "telefono_completo" || k === "telefono") && v) {
+            // quitar todo lo que no sea dígito y tomar últimos 7 caracteres
+            const digits = String(v).replace(/\D/g, '');
+            const ultimos7 = digits.length > 7 ? digits.slice(-7) : digits;
+            const telInput = form.querySelector("#telefono_completo");
+            if (telInput) telInput.value = ultimos7;
+            // NO tocamos cod_area aquí (se rellena a partir de registro.cod_area)
+            return;
+          }
+          if (["region","estado","municipio","gerente_region"].includes(k)) return;
+          const input = form.querySelector(`[name="${k}"], #${k}`);
+          if (input) input.value = v ?? '';
+        });
+
+        // Listas fijas con reporte
+        cargarListasFijas(registro);
+
+        // Cascada Región → Estado → Municipio + Gerente
+        if (registro.region) {
+          google.script.run.withSuccessHandler(arrR => {
+            poblarSelect(form.querySelector("#region"), arrR);
+            asignarSelectPorTexto(form.querySelector("#region"), registro.region);
+
+            google.script.run.withSuccessHandler(arrG => {
+              poblarSelect(form.querySelector("#gerente_region"), arrG);
+              asignarSelectPorTexto(form.querySelector("#gerente_region"), registro.gerente_region);
+            }).getGerentesPorRegion(registro.region);
+
+            google.script.run.withSuccessHandler(arrE => {
+              poblarSelect(form.querySelector("#estado"), arrE);
+              asignarSelectPorTexto(form.querySelector("#estado"), registro.estado);
+
+              google.script.run.withSuccessHandler(arrM => {
+                poblarSelect(form.querySelector("#municipio"), arrM);
+                asignarSelectPorTexto(form.querySelector("#municipio"), registro.municipio);
+              }).getMunicipiosPorEstado(registro.estado);
+            }).getEstadosPorRegion(registro.region);
+
+          }).getRegiones();
+        }
+
+        // 🧩 Guardar ID oculto
+        const idHidden = form.querySelector('#id_registro');
+        if (idHidden) {
+          idHidden.value = registro.id_registro || registro.id || '';
+          console.log("🆔 Campo oculto id_registro llenado con:", idHidden.value);
+        }
+
+        // Teléfono editable explícito
+        form.querySelector("#cod_area")?.removeAttribute('disabled');
+        form.querySelector("#telefono_completo")?.removeAttribute('disabled');
+      })
+      .withFailureHandler(err => {
+        console.error('❌ Error cargando registro por ID:', err);
+        alert('Error al cargar registro: ' + (err.message || err));
+      })
+      .getRegistroPorIdYFila(idRegistro);
+  });
+
+  // 📝 Guardar Cambios
+  (function attachGuardar() {
+    const btnGuardar = document.getElementById("btnGuardar");
+    if (!btnGuardar) return;
+    btnGuardar.addEventListener("click", () => {
+      const formData = Object.fromEntries(new FormData(form).entries());
+      const idRegistro = form.querySelector("#id_registro").value;
+
+      console.log("🆔 Enviando actualización con ID:", idRegistro);
+      console.log("📦 Datos a enviar:", formData);
+
+      google.script.run
+        .withSuccessHandler(msg => { alert(msg); })
+        .withFailureHandler(err => { alert("❌ Error al actualizar: " + (err.message || err)); })
+        .updateRegistro(idRegistro, formData);
+    });
+  })();
+
+  // Asegurar init aunque DOMContentLoaded ya haya ocurrido
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModificar);
+  } else {
+    initModificar();
+  }
+
+})(); // cierre IIFE
+</script>
+</body>
+</html>
